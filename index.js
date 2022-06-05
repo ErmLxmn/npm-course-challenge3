@@ -43,29 +43,33 @@ app.get('/api/hello', function(req, res) {
 app.post("/api/shorturl", function (req, res){
   let dataUrl = req.body.url;
   let response = {};
-  let short_url = 1;
 
   dns.lookup(urlparser.parse(dataUrl).hostname, function (err, address){
     if(!address){
       return res.json({ error: 'invalid url' })
     }else{
+      
+
       URL.findOne({url : dataUrl}, function (err, urlFound) {
         if(err) return console.log(err);
+        let short_url = 1;
 
         if(!urlFound){
-          let newURL = new URL({
-            url : dataUrl,
-            short_url
-          })
-          newURL.save(function (err, saveUrlFound){
-            if (err) return console.error(err);
-
-            response = {original_url : saveUrlFound.url , short_url : saveUrlFound.short_url}
-            return res.json(response);
-          })
+          URL.countDocuments({}, function (err, count) {
+            let newURL = new URL({
+              url : dataUrl,
+              short_url : count + 1
+            })  
+            newURL.save(function (err, saveUrlFound){
+              if (err) return console.error(err);
+  
+              response = {original_url : saveUrlFound.url , short_url : saveUrlFound.short_url}
+              return res.json(response);
+            })
+          });
         }
         else{
-          URL.findOneAndUpdate({url : dataUrl}, {short_url : urlFound.short_url + 1}, {new: true}, (err, urlUpdateFound) => {
+          URL.findOneAndUpdate({url : dataUrl}, {short_url : urlFound.short_url}, {new: true}, (err, urlUpdateFound) => {
             if(err) return console.log(err);
 
             response = {original_url : urlUpdateFound.url , short_url : urlUpdateFound.short_url}
