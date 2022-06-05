@@ -2,6 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
+const mySecret = process.env['MONGO_URI']
+require('dotenv').config();
+const mongoose = require('mongoose');
+const connection = require('./mongodb.js');
+
+connection.START_CONNECTION();
 
 // Basic Configuration
 const port = process.env.PORT || 3000;
@@ -18,6 +24,11 @@ app.get('/', function(req, res) {
 app.get('/api/hello', function(req, res) {
   res.json({ greeting: 'hello API' });
 });
+
+app.post("/api/shorturl", function (req, res){
+
+  res.json({});
+})
 
 app.listen(port, function() {
   console.log(`Listening on port ${port}`);
